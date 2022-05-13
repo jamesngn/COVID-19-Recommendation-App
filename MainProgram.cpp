@@ -10,7 +10,7 @@
 using namespace std;
 
 #define nameL 26
-#define addressL 49
+#define addressL 49 
 #define locationL 30
 #define symptomL 50
 #define MAX_NUM_PATIENTS 15
