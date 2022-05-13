@@ -1,0 +1,16 @@
+4
+fever
+cough
+tiredness
+loss of taste or smell
+6
+sore throat
+headache
+aches and pains
+diarrhoea
+a rash on skin or discolouration of fingers or toes
+red or irritated eyes
+3
+difficulty breathing or shortness of breath
+loss of speech or mobility or confusion
+chest pain
