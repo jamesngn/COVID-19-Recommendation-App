@@ -372,29 +372,27 @@ void PromptPatient(Patient p[MAX_NUM_PATIENTS], int &patientCount)
     cout << "Last Name: ";
     cin >> p[patientCount].lastName;
 
-    cout << "Day that you were born: ";
-    cin >> p[patientCount].DD;
-    while (p[patientCount].DD < 1 || p[patientCount].DD > 31)
+    dateOfBirth:
+    char slash_dummy;
+    cout<<"Date of birth: (DD/MM/YYYY) ";
+    //DAY:
+    cin >> p[patientCount].DD >> slash_dummy >> p[patientCount].MM >> slash_dummy >> p[patientCount].YYYY;
+
+    //CHECK VALID DATE OF BIRTH:
+    if (p[patientCount].DD < 0 || p[patientCount].DD > 31) 
     {
-        cout << "->Invalid day of birth\n";
-        cout << "Day that you were born: ";
-        cin >> p[patientCount].DD;
+        cout<<"Invalid day\n";
+        goto dateOfBirth;
     }
-    cout << "Month that you were born: ";
-    cin >> p[patientCount].MM;
-    while (p[patientCount].MM < 1 || p[patientCount].MM > 12)
+    if (p[patientCount].MM < 0 || p[patientCount].MM > 12) 
     {
-        cout << "->Invalid month of birth\n";
-        cout << "Month that you were born: ";
-        cin >> p[patientCount].MM;
+        cout<<"Invalid month\n";
+        goto dateOfBirth;
     }
-    cout << "Year that you were born: ";
-    cin >> p[patientCount].YYYY;
-    while (p[patientCount].YYYY < 1900 || p[patientCount].YYYY > 2022)
+    if (p[patientCount].YYYY < 1900 || p[patientCount].YYYY > 2022) 
     {
-        cout << "->Invalid year of birth\n";
-        cout << "Year that you were born: ";
-        cin >> p[patientCount].YYYY;
+        cout<<"Invalid year\n";
+        goto dateOfBirth;
     }
 
     cout << "Home address: ";
