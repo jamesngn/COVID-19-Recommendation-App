@@ -6,7 +6,6 @@
 #include <vector>
 #include <stdio.h>
 
-
 using namespace std;
 
 //Define constant numbers here: if I want to change the value of name length, I just need to change once on line #define nameL (new value)
@@ -35,13 +34,11 @@ struct Patient
     string covidTest = "unknown";
     string status = "unknown";
 };
-
 struct Location {
     string name;
     string id;
     // dt;
 };
-
 struct DateTime {
     int hh;
     int dd;
@@ -218,6 +215,16 @@ int isSameID(Patient p[MAX_NUM_PATIENTS], int &patientCount, int id)
         }
     }
     return -1;
+}
+bool checkWishToContinute() {
+    string temp;
+    while (true) {
+        cout<<"\nDo you wish to continute? (y/n) ";
+        cin>>temp;
+        if (temp == "y") {return true;}
+        else if (temp == "n") {return false;}
+        else {cout<<"Please type y for yes, n for no!";}
+    }
 }
 //_____________________________________________________________________________________________________
 // UPDATE
@@ -597,6 +604,29 @@ void displayCOVIDPatient(Patient p)
     cout << "Covid Test Result: " << p.covidTest << "\n";
     cout << "Patient status: " << p.status << "\n";
 }
+void displayAllCOVIDPatients(int patientCount, Patient p[MAX_NUM_PATIENTS]) {
+    cout << "\tCOVID-19 PATIENT LISTS\n";
+        if (patientCount == 0)
+        {
+            cout << "[] - the database is empty\n";
+        }
+        else
+        {
+            int j = 0;
+            for (int i = 0; i < patientCount; i++)
+            {
+                if (p[i].covidTest == "positive")
+                {
+                    j++;
+                    displayCOVIDPatient(p[i]);
+                }
+            }
+            if (j == 0)
+            {
+                cout << "No COVID-19 patient from the Patient Database.txt\n";
+            }
+        }
+}
 void displayIDPatient(Patient p[MAX_NUM_PATIENTS], int &patientCount)
 {
     cout << "-----PATIENT ID LIST-----\n";
@@ -645,61 +675,42 @@ menu:
         // Recommendation about COVID-19 treatment
         recommendTreatment(p[patientCount].symptomLevel, p[patientCount].visitedLocation.size());
         patientCount++;
-        goto menu;
-        break;
+        if (checkWishToContinute()) {goto menu;}
+        else {goto exit;}
     }
     case 2:
     {
         displayIDPatient(p, patientCount);
         openAppend(appendLocationDatabase, locationFName);
         PromptCOVIDTest(p, patientCount, location, appendLocationDatabase);
-        goto menu;
-        break;
+        if (checkWishToContinute()) {goto menu;}
+        else {goto exit;}
     }
     case 3:
     {
         openInput(inLocationDatabase, locationFName);
         loadLocationFile(location, locationCount, inLocationDatabase);
         displayCOVIDLocation(location);
-        goto menu;
-        break;
+        if (checkWishToContinute()) {goto menu;}
+        else {goto exit;}
     }
     case 4:
     {
         openOutput(outPatientDataBase, patientFName);
         updatePatientDataBase(outPatientDataBase, p, patientCount);
         cout << "Update the New COVID Positive Patient's Detail successfully.\n";
-        goto menu;
-        break;
+        if (checkWishToContinute()) {goto menu;}
+        else {goto exit;}
     }
     case 5:
     {
-        cout << "\tCOVID-19 PATIENT LISTS\n";
-        if (patientCount == 0)
-        {
-            cout << "[] - the database is empty\n";
-        }
-        else
-        {
-            int j = 0;
-            for (int i = 0; i < patientCount; i++)
-            {
-                if (p[i].covidTest == "positive")
-                {
-                    j++;
-                    displayCOVIDPatient(p[i]);
-                }
-            }
-            if (j == 0)
-            {
-                cout << "No COVID-19 patient from the Patient Database.txt\n";
-            }
-        }
-        goto menu;
-        break;
+        displayAllCOVIDPatients(patientCount,p);
+        if (checkWishToContinute()) {goto menu;}
+        else {goto exit;}
     }
     case 6:
     {
+exit:
         openOutput(outPatientDataBase, patientFName);
         updatePatientDataBase(outPatientDataBase, p, patientCount);
         cout << "Exit the program successfully!\n";
