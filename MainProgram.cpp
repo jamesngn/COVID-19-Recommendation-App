@@ -2,14 +2,15 @@
 #include <fstream>
 #include <sstream>
 #include <ctime>
-#include <string>
+#include <string.h>
 #include <vector>
-#include <cstdlib>
-#include <limits>
+#include <stdio.h>
+
 
 using namespace std;
 
-#define nameL 26
+//Define constant numbers here: if I want to change the value of name length, I just need to change once on line #define nameL (new value)
+#define nameL 15
 #define addressL 50
 #define locationL 30
 #define symptomL 50
@@ -21,7 +22,7 @@ struct Patient
     time_t now = time(0);
     char *dt = ctime(&now);
     int ID;
-    char firstName[nameL];
+    char firstName[nameL]; //C - string: an array of characters with limited number of elements.
     char lastName[nameL];
     int DD = -1;   // day in Date of Birth
     int MM = -1;   // month
@@ -34,7 +35,6 @@ struct Patient
     string covidTest = "unknown";
     string status = "unknown";
 };
-
 
 struct Location {
     string name;
@@ -49,7 +49,7 @@ struct DateTime {
     int yyyy;
 };
 
-string RISK_LEVEL[4] = {"Unidentified", "Low", "Medium", "High"};
+const string RISK_LEVEL[4] = {"Unidentified", "Low", "Medium", "High"};
 
 const string patientFName = "Database/Patient Database.txt";
 const string symptomFName = "Database/Symptom Database.txt";
@@ -133,6 +133,13 @@ bool checkValid(const T expected[], size_t SIZE, T actual)
     }
     return false;
 }
+bool check_number(string str) {
+   for (int i = 0; i < str.length(); i++)
+   if (isdigit(str[i]) == false) {
+       return false;
+   }
+      return true;
+}
 bool isSameLocation(vector<string> location, string actual)
 {
     for (string x : location)
@@ -148,7 +155,7 @@ void recommendTreatment(int s, int n)
 { // s = symptomLevel (0 - 3); n: number of high-risk visited locations
     if (s == 0)
     {
-        cout << "Unable to recommend COVID Test - required data missing";
+        cout << "Unable to recommend COVID Test - required data missing\n";
     }
     else if (s == 1)
     {
@@ -188,6 +195,17 @@ void recommendTreatment(int s, int n)
         cout << "3. Not visit high-risk settings (hospitals, residential aged care facilities, correctional and detention facilities and residential accommodation that support people who require frequent, close personal care and who are vulnerable to disease) from days 8 to 14 after you've left quarantine.\n";
         cout << "\t*You may still access urgent medical care or aged or disability care services.\n";
         cout << "4. Monitor for COVID-19 symptoms and get a PCR test if you develop any symptoms.\n";
+    }
+}
+void checkNumberOrStringInput(string question, bool inputIsNumber, string &temp) {
+    string warning;
+    if (inputIsNumber) {warning = "Please input integer number !\n";}
+    else {warning = "Please input letter!\n";}
+    while (true) {
+        cout << question; 
+        cin >> temp;
+        if (check_number(temp) != inputIsNumber) {cout<<warning;}
+        else {break;}
     }
 }
 int isSameID(Patient p[MAX_NUM_PATIENTS], int &patientCount, int id)
@@ -359,42 +377,39 @@ void loadLocationFile(vector<string> &l, int &locationCount, ifstream &inLocatio
 void PromptPatient(Patient p[MAX_NUM_PATIENTS], int &patientCount)
 {
     cout << "---------------------PATIENT " << patientCount + 1 << "---------------------\n";
-    cout << "Patient ID: ";
-    cin >> p[patientCount].ID;
-    while (areIDsDuplicated(p, patientCount, p[patientCount].ID))
+    string temp;
+    while (true) // INPUT PATIENT ID, check number, letter and duplicated ID
     {
-        cout << "Duplicate IDs are detected!\nPlease input different ID!\n";
-        cout << "Patient ID: ";
-        cin >> p[patientCount].ID;
+        checkNumberOrStringInput("Patient ID: ",true, temp);
+        if (areIDsDuplicated(p, patientCount, stoi(temp))) {
+            cout << "Duplicate IDs are detected!\nPlease input different ID!\n";
+        }
+        else break;
     }
-    cout << "First Name: ";
-    cin >> p[patientCount].firstName;
-    cout << "Last Name: ";
-    cin >> p[patientCount].lastName;
-
-    dateOfBirth:
-    char slash_dummy;
-    cout<<"Date of birth: (DD/MM/YYYY) ";
-    //DAY:
-    cin >> p[patientCount].DD >> slash_dummy >> p[patientCount].MM >> slash_dummy >> p[patientCount].YYYY;
-
-    //CHECK VALID DATE OF BIRTH:
-    if (p[patientCount].DD < 0 || p[patientCount].DD > 31) 
-    {
-        cout<<"Invalid day\n";
-        goto dateOfBirth;
+    p[patientCount].ID = stoi(temp);    
+    checkNumberOrStringInput("First Name: ",false,temp);
+    strcpy(p[patientCount].firstName, temp.c_str());
+    checkNumberOrStringInput("Last Name: ",false,temp);
+    strcpy(p[patientCount].lastName, temp.c_str());
+    cout<<"Your Date of Birth:\n";
+    while (true) { //DAY OF BIRTH
+        checkNumberOrStringInput("\tDay: ",true,temp);
+        p[patientCount].DD = stoi(temp);
+        if (p[patientCount].DD < 1 || p[patientCount].DD > 31) {cout<<"Invalid Day(only in 1-31)\n";}
+        else {break;}
     }
-    if (p[patientCount].MM < 0 || p[patientCount].MM > 12) 
-    {
-        cout<<"Invalid month\n";
-        goto dateOfBirth;
+    while (true) { //MONTH OF BIRTH
+        checkNumberOrStringInput("\tMonth: ",true,temp);
+        p[patientCount].MM = stoi(temp);
+        if (p[patientCount].MM < 1 || p[patientCount].MM > 12) {cout<<"Invalid Month (only in 1-12)\n";}
+        else {break;}
     }
-    if (p[patientCount].YYYY < 1900 || p[patientCount].YYYY > 2022) 
-    {
-        cout<<"Invalid year\n";
-        goto dateOfBirth;
+    while (true) { //YEAR OF BIRTH
+        checkNumberOrStringInput("\tYear: ",true,temp);
+        p[patientCount].YYYY = stoi(temp);
+        if (p[patientCount].YYYY < 1900 || p[patientCount].YYYY > 2022) {cout<<"Invalid Year (only in 1900-2022)\n";}
+        else {break;}
     }
-
     cout << "Home address: ";
     cin.ignore();
     cin.getline(p[patientCount].address, addressL);
@@ -471,7 +486,7 @@ void PromptCOVIDLocation(ifstream &inLocationDatabase, Patient &p)
     }
     inLocationDatabase.close();
 }
-void PromptCOVIDTest(Patient p[MAX_NUM_PATIENTS], int &patientCount, vector<string> location, ofstream &appendLocationDatabase)
+void PromptCOVIDTest(Patient p[MAX_NUM_PATIENTS], int &patientCount, vector<string> &location, ofstream &appendLocationDatabase)
 {
     cout << "Choose patient ID --> ";
     int id;
@@ -597,14 +612,16 @@ int main()
     ifstream inPatientDataBase, inSymptomDataBase, inLocationDatabase; // read
     ofstream outPatientDataBase;                                       // over-write (used to update)
     ofstream appendPatientDataBase, appendLocationDatabase;            // use to add more patients (option 1)
-    Patient p[MAX_NUM_PATIENTS];
+
+    Patient p[MAX_NUM_PATIENTS]; // an array of struct Patient. Each element represents for one Patient struct
     int patientCount = 0;
     vector<string> location;
     int locationCount = 0;
     // Load the patient file into the p struct.
+   
     openInput(inPatientDataBase, patientFName);
     loadPatientFile(p, patientCount, inPatientDataBase);
-    // Load the COVID location Database.
+    //Load the COVID location Database.
     openInput(inLocationDatabase, locationFName);
     loadLocationFile(location, locationCount, inLocationDatabase);
 menu:
@@ -617,11 +634,15 @@ menu:
     {
     case 1:
     {
-        PromptPatient(p, patientCount);
+        // Ask personal information: name, date of birth, address, overseatravel
+        PromptPatient(p, patientCount); 
+        // Load symtomps from database and promt patient about symptoms
         openInput(inSymptomDataBase, symptomFName);
         PromptSymtomps(inSymptomDataBase, p[patientCount]);
+        // Load location from database and promt patient about visited locations.
         openInput(inLocationDatabase, locationFName);
         PromptCOVIDLocation(inLocationDatabase, p[patientCount]);
+        // Recommendation about COVID-19 treatment
         recommendTreatment(p[patientCount].symptomLevel, p[patientCount].visitedLocation.size());
         patientCount++;
         goto menu;
