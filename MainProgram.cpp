@@ -15,7 +15,7 @@ using namespace std;
 #define symptomL 50
 #define MAX_NUM_PATIENTS 15
 #define MAX_NUM_SYMPTOMS 13
-
+#define MAX_NUM_FEEDBACK_QUESTIONS 10
 struct Patient
 {
     time_t now = time(0);
@@ -51,27 +51,41 @@ const string RISK_LEVEL[4] = {"Unidentified", "Low", "Medium", "High"};
 const string patientFName = "Database/Patient Database.txt";
 const string symptomFName = "Database/Symptom Database.txt";
 const string locationFName = "Database/COVID location Database.txt";
+const string feedbackFname = "Database/User Feedback.txt";
+
+const string feedbackQuestions[MAX_NUM_FEEDBACK_QUESTIONS] ={
+    "1. I think that I would like to use this system frequently.",
+    "2. I found the system unnecessarily complex.",
+    "3. I thought the system was easy to use.",
+    "4. I think that I would need the support of a technical person to be able to use this system.",
+    "5. I found the various functions in this system were well integrated.",
+    "6. I thought there was too much inconsistency in this system.",
+    "7. I would imagine that most people would learn to use this system very quickly.",
+    "8. I found the system very cumbersome to use.",
+    "9.	I felt very confident using the system.",
+    "10. I needed to learn a lot of things before I could get going with this system."
+};
 
 void openInput(ifstream &, string);  // for write
 void openOutput(ofstream &, string); // for read
 void openAppend(ofstream &, string); // for
 void displayMenu();
 
-void openInput(ifstream &fname, string filename)
+void openInput(ifstream &fname, string filepath)
 {
-    fname.open(filename.c_str());
+    fname.open(filepath.c_str());
     if (fname.fail()) // check for a successful open
     {
-        cout << "\nFailed to open the file named " << patientFName << " for read"
+        cout << "\nFailed to open the file named " << filepath << " for read"
              << "\n Please check that this file exists"
              << endl;
         exit(1);
     }
     return;
 }
-void openOutput(ofstream &fname, string filename)
+void openOutput(ofstream &fname, string filepath)
 {
-    fname.open(filename.c_str());
+    fname.open(filepath.c_str());
     if (fname.fail()) // check for a successful open
     {
         cout << "\nFailed to open the file named " << patientFName << " for write"
@@ -81,9 +95,9 @@ void openOutput(ofstream &fname, string filename)
     }
     return;
 }
-void openAppend(ofstream &fname, string filename)
+void openAppend(ofstream &fname, string filepath)
 {
-    fname.open(filename.c_str(), ios_base::app);
+    fname.open(filepath.c_str(), ios_base::app);
     if (fname.fail()) // check for a successful open
     {
         cout << "\nFailed to open the file named " << patientFName << " for append"
@@ -303,15 +317,19 @@ void loadPatientFile(Patient p[MAX_NUM_PATIENTS], int &patientCount, ifstream &i
         string line;
         string myString;
         string tempString;
+        
         int noOfSymptoms;
         int noOfLocations;
-
+        //getline: can read only one line at the time
+        //e.g: line = "10123,Tu,Le,11,2,2001,footscray vic,y,Symptom Level,1,No of Symptoms,4,Symptom Lists,fever,cough,tiredness,loss of taste or smell,No of high-risk visited locations,2,Swinburne University of Technology,Docklands VIC,covid test,negative,status,Live - Cured,"
         while (getline(inPatientDataBase, line))
         {
-            stringstream ss(line);
-            getline(ss, myString, ',');
-            p[patientCount].ID = stoi(myString);
-            ss.getline(p[patientCount].firstName, nameL, ',');
+            stringstream ss(line); //stringstream from sstream library - assign line string into ss. 
+            getline(ss, myString, ','); //ss will find information from the start and will stop at ',' - info is assigned to myString (type : String)
+            p[patientCount].ID = stoi(myString); // stoi : string to integer - because ID is interger type
+            ss.getline(p[patientCount].firstName, nameL, ','); // nameL = name Length
+            //char : 1 character
+            //array of character : many characters - firstName, lastName - different from string
             ss.getline(p[patientCount].lastName, nameL, ',');
             getline(ss, myString, ',');
             p[patientCount].DD = stoi(myString);
@@ -322,19 +340,19 @@ void loadPatientFile(Patient p[MAX_NUM_PATIENTS], int &patientCount, ifstream &i
             ss.getline(p[patientCount].address, addressL, ',');
             getline(ss, p[patientCount].lastOverseasTravel, ',');
             // ss.getline(p[patientCount].dt,50,',');
-            getline(ss, tempString, ','); // Symptom Level
+            getline(ss, tempString, ','); // skip Symptom Level
             getline(ss, myString, ',');
             p[patientCount].symptomLevel = stoi(myString);
-            getline(ss, tempString, ','); // No of Symptoms
+            getline(ss, tempString, ','); // skip No of Symptoms
             getline(ss, myString, ',');
             noOfSymptoms = stoi(myString);
-            getline(ss, tempString, ','); // Symptom Lists
+            getline(ss, tempString, ','); // skip Symptom Lists
             for (int i = 0; i < noOfSymptoms; i++)
             {
                 getline(ss, myString, ',');
                 p[patientCount].symptomsList.push_back(myString);
             }
-            getline(ss, tempString, ','); // No of high-risk visited locations
+            getline(ss, tempString, ','); // skip No of high-risk visited locations
             getline(ss, myString, ',');
             noOfLocations = stoi(myString);
             for (int i = 0; i < noOfLocations; i++)
@@ -342,9 +360,9 @@ void loadPatientFile(Patient p[MAX_NUM_PATIENTS], int &patientCount, ifstream &i
                 getline(ss, myString, ',');
                 p[patientCount].visitedLocation.push_back(myString);
             }
-            getline(ss, tempString, ',');
+            getline(ss, tempString, ','); // skip Covid Test
             getline(ss, p[patientCount].covidTest, ',');
-            getline(ss, tempString, ',');
+            getline(ss, tempString, ','); // skip tatus
             getline(ss, p[patientCount].status, ',');
             patientCount++;
         }
@@ -496,14 +514,15 @@ void PromptCOVIDLocation(ifstream &inLocationDatabase, Patient &p)
 void PromptCOVIDTest(Patient p[MAX_NUM_PATIENTS], int &patientCount, vector<string> &location, ofstream &appendLocationDatabase)
 {
     cout << "Choose patient ID --> ";
+    int inputID;
     int id;
-    cin >> id;
-    if (isSameID(p, patientCount, id) != -1)
+    cin >> inputID;
+    if (isSameID(p, patientCount, inputID) != -1)
     {
-        id = isSameID(p, patientCount, id);
+        id = isSameID(p, patientCount, inputID);
         if (p[id].status == "Dead - due to COVID-19")
         {
-            cout << "The patient ID " << id << " was dead due to COVID-19\n";
+            cout << "The patient ID " << inputID << " was dead due to COVID-19\n";
         }
         else
         {
@@ -571,6 +590,44 @@ void PromptCOVIDTest(Patient p[MAX_NUM_PATIENTS], int &patientCount, vector<stri
         cout << "Invalid patient ID.\n";
     }
     appendLocationDatabase.close();
+}
+void PromptAndUploadFeedback(ofstream &appendFeedbackDataBase) {
+    if (appendFeedbackDataBase.is_open())
+    {
+        string answer = " ";
+        while (true) 
+        {
+            cout<<"Your feedback is valuable for our software.6\nPlease spend 2 minutes completing this survey! (y for continue, n for skip): ";
+            cin >> answer;
+            if (answer == "y" || answer == "n") {break;}
+            else {cout<<"Invalid answer!\n";}
+        }
+        if (answer == "y")
+        {
+            int expected[5] = {1,2,3,4,5};
+            cout<<"----SYSTEM USABILITY SCALE (SUS)----\n";
+            for (int i = 0; i < MAX_NUM_FEEDBACK_QUESTIONS; i++)
+            {
+                int answer = 0;
+                while (!checkValid<int>(expected, 5, answer))
+                {
+                    cout<<feedbackQuestions[i] << " (Strongly Disagree 1 - 2 - 3 - 4 - 5  Strongly Agree):";
+                    cout<<"\nYour answer: ";
+                    cin >> answer;
+                }
+                appendFeedbackDataBase << feedbackQuestions[i] << "," << answer <<",";
+            }
+        }
+        appendFeedbackDataBase << "\n";
+        appendFeedbackDataBase.close();
+    }
+    else 
+    {
+        cout << "\nFailed to open the file named 'User Feedback.txt' for open"
+             << "\n Please check that this file exists"
+             << endl;
+        exit(1);
+    }
 }
 //____________________________________________________________________________________________________________________
 // DISPLAY
@@ -641,7 +698,7 @@ int main()
 {
     ifstream inPatientDataBase, inSymptomDataBase, inLocationDatabase; // read
     ofstream outPatientDataBase;                                       // over-write (used to update)
-    ofstream appendPatientDataBase, appendLocationDatabase;            // use to add more patients (option 1)
+    ofstream appendPatientDataBase, appendLocationDatabase, appendFeedbackDataBase;            // use to add more patients (option 1)
 
     Patient p[MAX_NUM_PATIENTS]; // an array of struct Patient. Each element represents for one Patient struct
     int patientCount = 0;
@@ -713,6 +770,8 @@ menu:
 exit:
         openOutput(outPatientDataBase, patientFName);
         updatePatientDataBase(outPatientDataBase, p, patientCount);
+        openAppend(appendFeedbackDataBase, feedbackFname);
+        PromptAndUploadFeedback(appendFeedbackDataBase);
         cout << "Exit the program successfully!\n";
         cout << "Goodbye. See you later!";
         exit(-1);
