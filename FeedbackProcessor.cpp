@@ -59,22 +59,28 @@ vector<int> feedbackProcessor(ifstream &inFeedbackDataBase) {
 }
 void displayResult(vector<int> scoreList) {
     int sum = 0;
-    for (int i = 0; i < scoreList.size(); i++) {
-        cout<<"Score "<<i+1<<" : "<<scoreList[i]<<"\n";
-        sum += scoreList[i];
+    if (scoreList.size() > 0) 
+    {
+        for (int i = 0; i < scoreList.size(); i++) {
+            cout<<"Score "<<i+1<<" : "<<scoreList[i]<<"\n";
+            sum += scoreList[i];
+        }
+        cout<<"------------------------------------\n";
+        int average = sum / scoreList.size();
+        cout<<"SUS Score Average: "<< average<<"\n";
+        cout<<"\n______________SCALE_______________\n";
+        cout<<"--0--10--20-(worst imaginable)-30-(poor)-40--50-(ok)--60--70-(good)-80-(excellent)-90--100 (best imaginable)-\n";
+        cout<<"Your Software's Acceptability level: ";
+        if      (average > 90) {cout<< "BEST IMAGINABLE";}
+        else if (average > 80) {cout<< "EXECELLENT";}
+        else if (average > 70) {cout<< "GOOD";}
+        else if (average > 50) {cout<< "OK";}
+        else if (average > 30) {cout<< "POOR";}
+        else if (average > 0)  {cout<< "WORST IMAGINABLE";}
+    } else {
+        cout<<"Data is missing - Unable to calculate SUS score\n";
     }
-    cout<<"------------------------------------\n";
-    int average = sum / scoreList.size();
-    cout<<"SUS Score Average: "<< average<<"\n";
-    cout<<"\n______________SCALE_______________\n";
-    cout<<"--0--10--20-(worst imaginable)-30-(poor)-40--50-(ok)--60--70-(good)-80-(excellent)-90--100 (best imaginable)-\n";
-    cout<<"Your Software's Acceptability level: ";
-    if      (average > 90) {cout<< "BEST IMAGINABLE";}
-    else if (average > 80) {cout<< "EXECELLENT";}
-    else if (average > 70) {cout<< "GOOD";}
-    else if (average > 50) {cout<< "OK";}
-    else if (average > 30) {cout<< "POOR";}
-    else if (average > 0)  {cout<< "WORST IMAGINABLE";}
+
 }
 int main() {
     vector<int> SUS_scoreList;

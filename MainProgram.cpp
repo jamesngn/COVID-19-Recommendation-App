@@ -491,8 +491,9 @@ void PromptCOVIDLocation(ifstream &inLocationDatabase, Patient &p)
     }
     while (option != 0)
     {
-        cout << "Select option: (0 for none/stop) ";
-        cin >> option;
+        string temp;
+        checkNumberOrStringInput("Select option: (0 for none/stop) ",true,temp);
+        option = stoi(temp);
         if (option == 0)
         {
             break;
@@ -508,6 +509,7 @@ void PromptCOVIDLocation(ifstream &inLocationDatabase, Patient &p)
                 cout << "-> Already added the location\n";
             }
         }
+        else {cout<<"Invalid number (in range 0 - "<<location.size()<<")\n";}
     }
     inLocationDatabase.close();
 }
