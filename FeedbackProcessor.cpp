@@ -9,6 +9,7 @@ using namespace std;
 const string feedbackFname = "Database/User Feedback.txt";
 
 void openInput(ifstream &, string);
+void displayResult(vector<int>);
 void openInput(ifstream &fname, string filepath)
 {
     fname.open(filepath.c_str());
@@ -22,7 +23,6 @@ void openInput(ifstream &fname, string filepath)
     return;
 }
 vector<int> feedbackProcessor(ifstream &inFeedbackDataBase) {
-
     if (inFeedbackDataBase.is_open()) {
         vector<int> scoreList;
         string line;
@@ -69,13 +69,13 @@ void displayResult(vector<int> scoreList) {
         int average = sum / scoreList.size();
         cout<<"SUS Score Average: "<< average<<"\n";
         cout<<"\n______________SCALE_______________\n";
-        cout<<"--0--10--20-(worst imaginable)-30-(poor)-40--50-(ok)--60--70-(good)-80-(excellent)-90--100 (best imaginable)-\n";
+        cout<<"--0-(worst imaginable)-----10------20------30-(poor)-----40------50-(ok)------60------70-(good)-----80-(excellent)-----90-(best imaginable)-----100--\n";
         cout<<"Your Software's Acceptability level: ";
         if      (average > 90) {cout<< "BEST IMAGINABLE";}
         else if (average > 80) {cout<< "EXECELLENT";}
         else if (average > 70) {cout<< "GOOD";}
         else if (average > 50) {cout<< "OK";}
-        else if (average > 30) {cout<< "POOR";}
+        else if (average > 30)   {cout<< "POOR";}
         else if (average > 0)  {cout<< "WORST IMAGINABLE";}
     } else {
         cout<<"Data is missing - Unable to calculate SUS score\n";

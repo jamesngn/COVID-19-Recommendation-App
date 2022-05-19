@@ -53,7 +53,7 @@ const string symptomFName = "Database/Symptom Database.txt";
 const string locationFName = "Database/COVID location Database.txt";
 const string feedbackFname = "Database/User Feedback.txt";
 
-const string feedbackQuestions[MAX_NUM_FEEDBACK_QUESTIONS] ={
+const string feedbackQuestions[MAX_NUM_FEEDBACK_QUESTIONS] = {
     "1. I think that I would like to use this system frequently.",
     "2. I found the system unnecessarily complex.",
     "3. I thought the system was easy to use.",
@@ -88,7 +88,7 @@ void openOutput(ofstream &fname, string filepath)
     fname.open(filepath.c_str());
     if (fname.fail()) // check for a successful open
     {
-        cout << "\nFailed to open the file named " << patientFName << " for write"
+        cout << "\nFailed to open the file named " << filepath << " for write"
              << "\n Please check that this file exists"
              << endl;
         exit(1);
@@ -100,7 +100,7 @@ void openAppend(ofstream &fname, string filepath)
     fname.open(filepath.c_str(), ios_base::app);
     if (fname.fail()) // check for a successful open
     {
-        cout << "\nFailed to open the file named " << patientFName << " for append"
+        cout << "\nFailed to open the file named " << filepath << " for append"
              << "\n Please check that this file exists"
              << endl;
         exit(1);
@@ -108,7 +108,7 @@ void openAppend(ofstream &fname, string filepath)
     return;
 }
 
-void displayMenu()
+void displayMenu()  
 {
     cout << "----------------------------------------\n";
     cout << "\t\tMENU:\n";
@@ -151,6 +151,7 @@ bool check_number(string str) {
    }
       return true;
 }
+//check_number("a") --> return FALSE;
 bool isSameLocation(vector<string> location, string actual)
 {
     for (string x : location)
@@ -164,6 +165,7 @@ bool isSameLocation(vector<string> location, string actual)
 }
 void recommendTreatment(int s, int n)
 { // s = symptomLevel (0 - 3); n: number of high-risk visited locations
+    cout<<"----------------------------------------------------------------------------------------------\n";
     if (s == 0)
     {
         cout << "Unable to recommend COVID Test - required data missing\n";
@@ -173,7 +175,7 @@ void recommendTreatment(int s, int n)
         if (n == 0)
         {
             cout << "You have LOW-risk symptoms.\nYou visited 0 COVID-19 high-risk location.\n";
-            cout << "-----YOUR COVID-19 RECOMMENDATION-----\n";
+            cout << "\t-----YOUR COVID-19 RECOMMENDATION-----\n";
             cout << "1. Maintain a safe distance from others (at least 1 metre)\n";
             cout << "2. Stay home if you feel unwell.\n";
             cout << "3. Clean your hands often. Use soap and water, or an alcohol-based hand rub.\n";
@@ -181,7 +183,7 @@ void recommendTreatment(int s, int n)
         else if (n > 0)
         {
             cout << "You have LOW-risk symptoms.\nYou visited " << n << " COVID-19 high-risk location(s).\n";
-            cout << "-----YOUR COVID-19 RECOMMENDATION-----\n";
+            cout << "\t-----YOUR COVID-19 RECOMMENDATION-----\n";
             cout << "1. Monitor carefully for COVID-19 symptoms\n";
             cout << "2. Stay home if you feel unwell.\n";
             cout << "3. Clean your hands often. Use soap and water, or an alcohol-based hand rub.\n";
@@ -191,7 +193,7 @@ void recommendTreatment(int s, int n)
     else if (s == 2)
     {
         cout << "You have MEDIUM-risk symptoms.\nYou visited " << n << " COVID-19 high-risk location(s).\n";
-        cout << "-----YOUR COVID-19 RECOMMENDATION-----\n";
+        cout << "\t-----YOUR COVID-19 RECOMMENDATION-----\n";
         cout << "1. Have a test as soon as you can and quarantine until you receive a negative result.\n";
         cout << "\t*You do not need to continue to quarantine if you receive a negative result.\n";
         cout << "2. If the first test was before day 5 (day 0 is the last date of exposure to the person with COVID-19), have another test on or after day 6.\n";
@@ -200,7 +202,7 @@ void recommendTreatment(int s, int n)
     else if (s == 3)
     {
         cout << "You have HIGH-risk symptoms.\nYou visited " << n << " COVID-19 high-risk location(s).\n";
-        cout << "-----YOUR COVID-19 RECOMMENDATION-----\n";
+        cout << "\t-----YOUR COVID-19 RECOMMENDATION-----\n";
         cout << "1. Have a test as soon as you can and quarantine for 7 days from the last date of exposure to the person who has COVID-19 (that date is day 0).\n";
         cout << "2. Take a test on or after day 6.\n";
         cout << "3. Not visit high-risk settings (hospitals, residential aged care facilities, correctional and detention facilities and residential accommodation that support people who require frequent, close personal care and who are vulnerable to disease) from days 8 to 14 after you've left quarantine.\n";
@@ -376,15 +378,15 @@ void loadPatientFile(Patient p[MAX_NUM_PATIENTS], int &patientCount, ifstream &i
         exit(1);
     }
 }
-void loadLocationFile(vector<string> &l, int &locationCount, ifstream &inLocationDatabase)
+void loadLocationFile(vector<string> &location, int &locationCount, ifstream &inLocationDatabase)
 {
     if (inLocationDatabase.is_open())
     {
         string line;
-        l.clear();
+        location.clear();
         while (getline(inLocationDatabase, line))
         {
-            l.push_back(line);
+            location.push_back(line);
             locationCount++;
         }
         inLocationDatabase.close();
@@ -403,7 +405,8 @@ void PromptPatient(Patient p[MAX_NUM_PATIENTS], int &patientCount)
 {
     cout << "---------------------PATIENT " << patientCount + 1 << "---------------------\n";
     string temp;
-    while (true) // INPUT PATIENT ID, check number, letter and duplicated ID
+    // INPUT PATIENT ID, check number, letter and duplicated ID
+    while (true) 
     {
         checkNumberOrStringInput("Patient ID: ",true, temp);
         if (areIDsDuplicated(p, patientCount, stoi(temp))) {
@@ -412,32 +415,40 @@ void PromptPatient(Patient p[MAX_NUM_PATIENTS], int &patientCount)
         else break;
     }
     p[patientCount].ID = stoi(temp);    
-    checkNumberOrStringInput("First Name: ",false,temp);
+    //ASK FIRST NAME:
+    checkNumberOrStringInput("First Name: ",false,temp); 
     strcpy(p[patientCount].firstName, temp.c_str());
+    //ASK LAST NAME:
     checkNumberOrStringInput("Last Name: ",false,temp);
     strcpy(p[patientCount].lastName, temp.c_str());
+    //DATE OF BIRTH:
     cout<<"Your Date of Birth:\n";
-    while (true) { //DAY OF BIRTH
+    //DAY:
+    while (true) { 
         checkNumberOrStringInput("\tDay: ",true,temp);
         p[patientCount].DD = stoi(temp);
         if (p[patientCount].DD < 1 || p[patientCount].DD > 31) {cout<<"Invalid Day(only in 1-31)\n";}
         else {break;}
     }
-    while (true) { //MONTH OF BIRTH
+    //MONTH:
+    while (true) { 
         checkNumberOrStringInput("\tMonth: ",true,temp);
         p[patientCount].MM = stoi(temp);
         if (p[patientCount].MM < 1 || p[patientCount].MM > 12) {cout<<"Invalid Month (only in 1-12)\n";}
         else {break;}
     }
-    while (true) { //YEAR OF BIRTH
+    //YEAR:
+    while (true) { 
         checkNumberOrStringInput("\tYear: ",true,temp);
         p[patientCount].YYYY = stoi(temp);
         if (p[patientCount].YYYY < 1900 || p[patientCount].YYYY > 2022) {cout<<"Invalid Year (only in 1900-2022)\n";}
         else {break;}
     }
+    //HOME ADDRESS:
     cout << "Home address: ";
     cin.ignore();
     cin.getline(p[patientCount].address, addressL);
+    //OVERSEAS TRAVEL
     while (p[patientCount].lastOverseasTravel != "yes" && p[patientCount].lastOverseasTravel != "y" && p[patientCount].lastOverseasTravel != "no" && p[patientCount].lastOverseasTravel != "n")
     {
         cout << "Overseas Travel (y/n): ";
@@ -452,14 +463,20 @@ void PromptSymtomps(ifstream &inSymptomDataBase, Patient &p)
     cout << "\nCOVID-19 DIAGNOSIS BASED ON COMMON SYMTOMPS\n";
     while (levelOfRisk < 3)
     {
-        inSymptomDataBase >> noOfSymptoms;
-        inSymptomDataBase.ignore();
+        inSymptomDataBase >> noOfSymptoms; //Read the number from Symptom Database
+        inSymptomDataBase.ignore(); //Skip the next character
         cout << "-----" << RISK_LEVEL[levelOfRisk + 1] << " Risk Symptoms -----\n";
+
+        //FOR LOOP: loop the symptom questions related to a specific level of risk.
         for (int i = 1; i <= noOfSymptoms; i++)
         {
-            getline(inSymptomDataBase, symptom);
+            getline(inSymptomDataBase, symptom); //read the symptom name into the variable symptom
+            
+            //ASK SYMPTOM QUESTION:
             cout << "Do you have " << symptom << " ? (y/n) ";
             cin >> ans;
+
+            //PROCESS VALID INPUT:
             while (ans != "y" && ans != "n")
             {
                 cout << "Invalid answer. Please try again!\n";
@@ -468,7 +485,7 @@ void PromptSymtomps(ifstream &inSymptomDataBase, Patient &p)
             }
             if (ans == "y")
             {
-                p.symptomsList.push_back(symptom);
+                p.symptomsList.push_back(symptom); //add to the symptom to the vector
                 p.symptomLevel = levelOfRisk + 1;
             }
         }
@@ -482,6 +499,7 @@ void PromptCOVIDLocation(ifstream &inLocationDatabase, Patient &p)
     char ans;
     string name;
     vector<string> location;
+    //DISPLAY HIGH-RISK LOCATIONS TO THE USER:
     cout << "-----Select the locations you have visited-----\n";
     while (getline(inLocationDatabase, name))
     {
@@ -489,6 +507,8 @@ void PromptCOVIDLocation(ifstream &inLocationDatabase, Patient &p)
         i++;
         location.push_back(name);
     }
+    //DISPLAY HIGH-RISK LOCATIONS TO THE USER:
+
     while (option != 0)
     {
         string temp;
@@ -496,12 +516,18 @@ void PromptCOVIDLocation(ifstream &inLocationDatabase, Patient &p)
         option = stoi(temp);
         if (option == 0)
         {
+            //When choosing option = 0, the patient stops choosing the option
             break;
         }
+        //In this case, many cases we need to check: 
+        // + option should be in appropriate range.
+        // + option should not be letters, only number
+        // + option should detect the added location from the user.
         else if (option > 0 && option <= location.size())
         {
             if (!isSameLocation(p.visitedLocation, location[option - 1]))
             {
+                //For valid option: the chosen location is put in the visited location vector of the patient.
                 p.visitedLocation.push_back(location[option - 1]);
             }
             else
@@ -704,7 +730,7 @@ int main()
 
     Patient p[MAX_NUM_PATIENTS]; // an array of struct Patient. Each element represents for one Patient struct
     int patientCount = 0;
-    vector<string> location;
+    vector<string> location; //there are no limited number of high-risk covid locations
     int locationCount = 0;
     // Load the patient file into the p struct.
    
@@ -716,9 +742,10 @@ int main()
 menu:
     // display menu for choosing option:
     displayMenu();
-    int option;
-    cout << "--> Option: ";
-    cin >> option;
+    int option; 
+    string temp;
+    checkNumberOrStringInput("--> Option: ", true, temp);
+    option = stoi(temp);
     switch (option)
     {
     case 1:
@@ -782,8 +809,8 @@ exit:
     default:
     {
         cout << "Unknown selection, please try again\n";
-        goto menu;
-        break;
+        if (checkWishToContinute()) {goto menu;}
+        else {goto exit;}
     }
     }
 }
