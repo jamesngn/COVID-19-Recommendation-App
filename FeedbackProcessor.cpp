@@ -38,11 +38,11 @@ vector<int> feedbackProcessor(ifstream &inFeedbackDataBase) {
                 getline(ss, tempString, ','); //read question
                 if (i % 2 == 1) {
                     getline(ss,myString,',');
-                    int score = stoi(myString) - 1;
+                    int score = stoi(myString);
                     oddQuestionScore += (score);
                 } else {
                     getline(ss,myString,',');
-                    int score = stoi(myString) - 1;
+                    int score = stoi(myString);
                     evenQuestionScore += (score);
                 }
             }

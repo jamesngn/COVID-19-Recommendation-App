@@ -21,7 +21,8 @@ struct Patient
     time_t now = time(0);
     char *dt = ctime(&now);
     int ID;
-    char firstName[nameL]; //C - string: an array of characters with limited number of elements.
+    //C - string: an array of characters with limited number of elements.
+    char firstName[nameL]; 
     char lastName[nameL];
     int DD = -1;   // day in Date of Birth
     int MM = -1;   // month
@@ -227,7 +228,7 @@ int isSameID(Patient p[MAX_NUM_PATIENTS], int &patientCount, int id)
     {
         if (id == p[i].ID)
         {
-            return i;
+            return i; //return the patient ordernumber in the database
         }
     }
     return -1;
@@ -416,7 +417,7 @@ void PromptPatient(Patient p[MAX_NUM_PATIENTS], int &patientCount)
     }
     p[patientCount].ID = stoi(temp);    
     //ASK FIRST NAME:
-    checkNumberOrStringInput("First Name: ",false,temp); 
+    checkNumberOrStringInput("First Name: ",/*inputIsNumber*/ false,temp); 
     strcpy(p[patientCount].firstName, temp.c_str());
     //ASK LAST NAME:
     checkNumberOrStringInput("Last Name: ",false,temp);
@@ -572,20 +573,20 @@ void PromptCOVIDTest(Patient p[MAX_NUM_PATIENTS], int &patientCount, vector<stri
                 while (true)
                 {
                     getline(cin, ans);
-                    if (ans == "0")
+                    if (ans == "0") //stop adding the locations
                     {
                         break;
                     }
                     else if (ans != "")
                     {
-                        p[id].visitedLocation.push_back(ans);
+                        p[id].visitedLocation.push_back(ans); //added into the Patient's visited locations
                     }
-                    if (!isSameLocation(location, ans))
+                    if (!isSameLocation(location, ans)) //Check the exactly same answer.
                     {
                         vec.push_back(ans);
                     }
                 }
-                updateLocationDataBase(appendLocationDatabase, vec);
+                updateLocationDataBase(appendLocationDatabase, vec); //Update on the location
             }
             else if (answer == "n" || answer == "negative")
             {
